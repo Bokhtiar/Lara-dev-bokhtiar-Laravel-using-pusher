@@ -5313,6 +5313,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+var _methods;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5337,14 +5350,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      blogs: []
+      blogs: [],
+      comment: ''
     };
   },
   created: function created() {
     this.fetchBlog();
     this.listenForChanges();
+    this.fetchComment();
   },
-  methods: {
+  methods: (_methods = {
     fetchBlog: function fetchBlog() {
       var _this = this;
 
@@ -5362,7 +5377,22 @@ __webpack_require__.r(__webpack_exports__);
         _this2.blogs.push(e);
       });
     }
-  },
+  }, _defineProperty(_methods, "fetchBlog", function fetchBlog() {
+    var _this3 = this;
+
+    axios.get('/blog/commnet/list').then(function (response) {
+      _this3.blogs = response.data;
+      console.log("test", response.data);
+    });
+  }), _defineProperty(_methods, "addComment", function addComment(id) {
+    var formData = new FormData();
+    formData.append("comment", this.comment);
+    axios.post("/blog/comment/".concat(id), formData).then(function (response) {
+      console.log(response);
+    })["catch"](function (error) {
+      console.log(error);
+    });
+  }), _methods),
   computed: {
     getblog: function getblog() {
       return this.blogs;
@@ -34954,6 +34984,58 @@ var render = function () {
           _c("td", [_vm._v(_vm._s(blog.title))]),
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(blog.body))]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "form",
+              {
+                on: {
+                  submit: function ($event) {
+                    $event.preventDefault()
+                    return _vm.addComment(blog.id)
+                  },
+                },
+              },
+              [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(_vm.comment) +
+                    "\n                "
+                ),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.comment,
+                      expression: "comment",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: {
+                    type: "text",
+                    name: "comment",
+                    placeholder: "comment",
+                    id: "",
+                  },
+                  domProps: { value: _vm.comment },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.comment = $event.target.value
+                    },
+                  },
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "btn btn-sm btn-success",
+                  attrs: { type: "submit", name: "", value: "submit", id: "" },
+                }),
+              ]
+            ),
+          ]),
         ])
       }),
       0
@@ -34972,6 +35054,8 @@ var staticRenderFns = [
         _c("th", [_vm._v("title")]),
         _vm._v(" "),
         _c("th", [_vm._v("Body")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Comment")]),
       ]),
     ])
   },

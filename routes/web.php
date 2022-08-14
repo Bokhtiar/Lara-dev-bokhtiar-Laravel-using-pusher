@@ -27,6 +27,7 @@ Route::get('/leaderboard', [App\Http\Controllers\CardController::class, 'leaderb
 Route::get('/blog/create', [App\Http\Controllers\BlogController::class, 'create']);
 Route::post('/blog/store', [App\Http\Controllers\BlogController::class, 'store']);
 Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index']);
+Route::post('/blog/comment/{id}', [App\Http\Controllers\CommentController::class, 'store']);
 
 
 Route::get('/todo/create', [App\Http\Controllers\TodoController::class, 'create']);
