@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class CommentUpdate
+class CommentUpdate implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -19,9 +19,10 @@ class CommentUpdate
      *
      * @return void
      */
-    public function __construct()
+    public $comment;
+    public function __construct($comment)
     {
-        //
+        $this->comment = $comment;
     }
 
     /**
@@ -31,6 +32,15 @@ class CommentUpdate
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new Channel('comment-channel');
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'id' => $this->comment->id,
+            'blog_id' => $this->comment->blog_id,
+            'comment' => $this->comment->comment
+        ];
     }
 }

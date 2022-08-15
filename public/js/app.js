@@ -5313,10 +5313,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-var _methods;
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5351,6 +5352,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       blogs: [],
+      commentList: [],
       comment: ''
     };
   },
@@ -5358,8 +5360,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.fetchBlog();
     this.listenForChanges();
     this.fetchComment();
+    this.listenForChangesCommnet();
   },
-  methods: (_methods = {
+  methods: {
     fetchBlog: function fetchBlog() {
       var _this = this;
 
@@ -5376,26 +5379,45 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         _this2.blogs.push(e);
       });
-    }
-  }, _defineProperty(_methods, "fetchBlog", function fetchBlog() {
-    var _this3 = this;
+    },
+    fetchComment: function fetchComment() {
+      var _this3 = this;
 
-    axios.get('/blog/commnet/list').then(function (response) {
-      _this3.blogs = response.data;
-      console.log("test", response.data);
-    });
-  }), _defineProperty(_methods, "addComment", function addComment(id) {
-    var formData = new FormData();
-    formData.append("comment", this.comment);
-    axios.post("/blog/comment/".concat(id), formData).then(function (response) {
-      console.log(response);
-    })["catch"](function (error) {
-      console.log(error);
-    });
-  }), _methods),
+      axios.get('/blog/commnet/list').then(function (response) {
+        _this3.commentList = response.data.data;
+        console.log("test comment", response.data.data);
+      });
+    },
+    listenForChangesCommnet: function listenForChangesCommnet() {
+      var _this4 = this;
+
+      Echo.channel('comment-channel').listen('CommentUpdate', function (e) {
+        console.log("comment updateed value", e);
+
+        _this4.commentList.push(e);
+      });
+    },
+
+    /**add comment */
+    addComment: function addComment(id) {
+      var _this5 = this;
+
+      var formData = new FormData();
+      formData.append("comment", this.comment);
+      axios.post("/blog/comment/".concat(id), formData).then(function (response) {
+        console.log(response);
+        _this5.comment = "";
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
+  },
   computed: {
     getblog: function getblog() {
       return this.blogs;
+    },
+    getCommentList: function getCommentList() {
+      return this.commentList;
     }
   }
 });
@@ -34985,57 +35007,75 @@ var render = function () {
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(blog.body))]),
           _vm._v(" "),
-          _c("td", [
-            _c(
-              "form",
-              {
-                on: {
-                  submit: function ($event) {
-                    $event.preventDefault()
-                    return _vm.addComment(blog.id)
+          _c(
+            "td",
+            [
+              _c(
+                "form",
+                {
+                  on: {
+                    submit: function ($event) {
+                      $event.preventDefault()
+                      return _vm.addComment(blog.id)
+                    },
                   },
                 },
-              },
-              [
-                _vm._v(
-                  "\n                " +
-                    _vm._s(_vm.comment) +
-                    "\n                "
-                ),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.comment,
-                      expression: "comment",
+                [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.comment,
+                        expression: "comment",
+                      },
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      name: "comment",
+                      placeholder: "comment",
+                      id: "",
                     },
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "comment",
-                    placeholder: "comment",
-                    id: "",
-                  },
-                  domProps: { value: _vm.comment },
-                  on: {
-                    input: function ($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.comment = $event.target.value
+                    domProps: { value: _vm.comment },
+                    on: {
+                      input: function ($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.comment = $event.target.value
+                      },
                     },
-                  },
-                }),
-                _vm._v(" "),
-                _c("input", {
-                  staticClass: "btn btn-sm btn-success",
-                  attrs: { type: "submit", name: "", value: "submit", id: "" },
-                }),
-              ]
-            ),
-          ]),
+                  }),
+                  _vm._v(" "),
+                  _c("input", {
+                    staticClass: "btn btn-sm btn-success",
+                    attrs: {
+                      type: "submit",
+                      name: "",
+                      value: "submit",
+                      id: "",
+                    },
+                  }),
+                ]
+              ),
+              _vm._v(" "),
+              _vm._l(_vm.commentList, function (c, key) {
+                return _c("p", [
+                  c.blog_id == blog.id
+                    ? _c("span", [
+                        _vm._v(
+                          "\n                " +
+                            _vm._s(c.comment) +
+                            "\n                "
+                        ),
+                      ])
+                    : _vm._e(),
+                ])
+              }),
+            ],
+            2
+          ),
         ])
       }),
       0

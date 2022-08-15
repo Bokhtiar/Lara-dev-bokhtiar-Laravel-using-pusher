@@ -15,10 +15,15 @@
             <td>{{ blog.body }}</td>
             <td>
                 <form  @submit.prevent = "addComment(blog.id)">
-                    {{ comment }}
                     <input type="text" v-model="comment" name="comment" placeholder="comment" class="form-control" id="">
                     <input type="submit" name="" value="submit" class="btn btn-sm btn-success" id="">
                 </form>
+
+                <p v-for="(c, key) in commentList">
+                    <span v-if="c.blog_id == blog.id">
+                    {{ c.comment }}
+                    </span>
+                </p>
             </td>
             
         </tr>
@@ -34,13 +39,15 @@
         data() {
             return {
                 blogs: [],
-                comment: ''
+                commentList: [],
+                comment: '',
             }
         },
         created() {
             this.fetchBlog();
             this.listenForChanges();
             this.fetchComment();
+            this.listenForChangesCommnet()
         },
         methods: {
             fetchBlog() {
@@ -57,11 +64,19 @@
                     })
             },
 
-            fetchBlog() {
+            fetchComment() {
                 axios.get('/blog/commnet/list').then((response) => {
-                    this.blogs = response.data;
-                    console.log("test",response.data)
+                    this.commentList = response.data.data;
+                    console.log("test comment",response.data.data)
                 })
+            },
+
+            listenForChangesCommnet() {
+                Echo.channel('comment-channel')
+                .listen('CommentUpdate', (e) => {
+                    console.log("comment updateed value", e)
+                        this.commentList.push(e)
+                    })
             },
             /**add comment */
             addComment(id){
@@ -70,6 +85,7 @@
                 axios.post(`/blog/comment/${id}`, formData)
                     .then((response)=> {
                         console.log(response)
+                        this.comment = ""
                     }).catch((error)=> {
                         console.log(error)
                     })
@@ -78,6 +94,9 @@
         computed: {
             getblog() {
                 return this.blogs
+            },
+            getCommentList() {
+                return this.commentList
             }
         }
     }

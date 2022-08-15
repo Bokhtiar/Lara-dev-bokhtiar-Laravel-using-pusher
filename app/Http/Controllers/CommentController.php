@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentUpdate;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,10 @@ class CommentController extends Controller
      */
     public function index()
     {
-        //
+        $results = Comment::all();
+        return response()->json([
+            "data" => $results,
+        ], 201);
     }
 
     /**
@@ -39,6 +43,7 @@ class CommentController extends Controller
         $comment->comment = $request->comment;
         $comment->blog_id = $id;
         $comment->save();
+        event( new CommentUpdate($comment));
         return response()->json([
             "data" => $comment,
             "message" => "comment successfully done",
